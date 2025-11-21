@@ -150,8 +150,18 @@ fi
 echo ">>> [Mock] 打包 AudienceSensingMock_YYYYMMDD.zip ..."
 (
   cd "${RELEASE_DIR}"
+
+  # 如果目标文件已存在，先删掉
   rm -f "${MOCK_ZIP_PATH}" || true
-  zip -r "${MOCK_ZIP_PATH}" "${MOCK_RELEASE_NAME}"
+
+  if command -v zip >/dev/null 2>&1; then
+      echo ">>> 检测到 zip 命令，使用 zip 压缩..."
+      zip -r "${MOCK_ZIP_PATH}" "${MOCK_RELEASE_NAME}"
+  else
+      echo ">>> 未检测到 zip 命令，使用 PowerShell Compress-Archive 代替..."
+      powershell.exe -NoLogo -NoProfile -Command \
+        "Compress-Archive -Path '${MOCK_RELEASE_NAME}' -DestinationPath '${MOCK_RELEASE_NAME}.zip' -Force"
+  fi
 )
 
 echo ">>> [Mock] 完成: ${MOCK_ZIP_PATH}"
